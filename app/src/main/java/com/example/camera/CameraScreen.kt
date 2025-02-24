@@ -42,7 +42,6 @@ import kotlin.coroutines.suspendCoroutine
 @Composable
 fun Permission() {
 
-    val context = LocalContext.current
     val permissionList = listOf(
         android.Manifest.permission.CAMERA
     )
