@@ -3,11 +3,12 @@ package com.example.camera
 import android.content.ContentValues
 import android.content.Context
 import android.provider.MediaStore
-import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -110,7 +111,9 @@ fun CameraScreen() {
         ) {
             Column {
                 IconButton(
-                    onClick = {},
+                    onClick = {
+                        capturePhoto(imageCapture, context)
+                    },
                     modifier = Modifier
                         .size(80.dp)
                         .background(Color.White, CircleShape)
@@ -139,8 +142,8 @@ private fun capturePhoto(imageCapture: ImageCapture, context: Context){
     val name = "MyImage_${System.currentTimeMillis()}.jpg"
     val contentValues = ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-        put(MediaStore.MediaColumns.MIME_TYPE, "Image/jpeg")
-        put(MediaStore.MediaColumns.RELATIVE_PATH, "CustomCamera")
+        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+        put(MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/CustomCamera")
     }
     val outputOption = ImageCapture.OutputFileOptions.Builder(
         context.contentResolver,
@@ -150,6 +153,16 @@ private fun capturePhoto(imageCapture: ImageCapture, context: Context){
 
     imageCapture.takePicture(
         outputOption,
-        ContextCompat.getMainExecutor(context)
+        ContextCompat.getMainExecutor(context),
+        object : ImageCapture.OnImageSavedCallback{
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                Toast.makeText(context, "Image Saved to Pictures/CustomCamera", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                Toast.makeText(context, "Failed to save image", Toast.LENGTH_SHORT).show()
+            }
+
+        }
     )
 }
